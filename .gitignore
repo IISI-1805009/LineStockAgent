@@ -1,0 +1,27 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Mac OS X
+.DS_Store
+
+# Databases
+*.sqlite3
+*.db
+
+# Logs
+*.log
+
+# Caches
+.cache/
+.pytest_cache/

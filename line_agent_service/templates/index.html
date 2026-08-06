@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user_name }} 的投資組合</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #191919;
+            --surface-color: #202020;
+            --border-color: #2F2F2F;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            
+            /* 台股專屬顏色 (紅漲綠跌) */
+            --color-red: #F23645;
+            --color-red-bg: rgba(242, 54, 69, 0.15);
+            --color-pink: #FF758F;
+            --color-pink-bg: rgba(255, 117, 143, 0.15);
+            
+            --color-green: #089981;
+            --color-green-bg: rgba(8, 153, 129, 0.15);
+            --color-lightgreen: #22AB94;
+            --color-lightgreen-bg: rgba(34, 171, 148, 0.15);
+            
+            --color-gray: #6B7280;
+            --color-gray-bg: rgba(107, 114, 128, 0.15);
+            --color-darkgray: #4B5563;
+            --color-darkgray-bg: rgba(75, 85, 99, 0.2);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .table-container {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 13px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        td {
+            padding: 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+            color: #E5E7EB;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.03);
+            transition: background-color 0.2s ease;
+        }
+
+        .stock-name-cell {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stock-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .stock-code {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* 標籤樣式 */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* 買方 (紅系) */
+        .tag-buy-big, .tag-buy-med { background-color: var(--color-red-bg); color: var(--color-red); }
+        .tag-buy-small { background-color: var(--color-pink-bg); color: var(--color-pink); }
+        
+        /* 賣方 (綠系) */
+        .tag-sell-big, .tag-sell-med { background-color: var(--color-green-bg); color: var(--color-green); }
+        .tag-sell-small { background-color: var(--color-lightgreen-bg); color: var(--color-lightgreen); }
+        
+        /* 中立 (灰系) */
+        .tag-hold { background-color: var(--color-gray-bg); color: #D1D5DB; }
+        .tag-wait { background-color: var(--color-darkgray-bg); color: #9CA3AF; }
+
+        /* 數值顏色 */
+        .text-positive { color: var(--color-red) !important; font-weight: 500;} /* 台股紅漲 */
+        .text-negative { color: var(--color-green) !important; font-weight: 500;} /* 台股綠跌 */
+        .text-neutral { color: var(--text-secondary); }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .pnl-cell {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .pnl-percent {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .buy-reason {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--text-secondary);
+            font-size: 13px;
+            position: relative;
+        }
+        
+        .buy-reason:hover {
+            white-space: normal;
+            background: #2A2A2A;
+            border-radius: 4px;
+            padding: 4px;
+            position: absolute;
+            z-index: 10;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+            width: max-content;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <div class="header">
+        <h1>💼 {{ user_name }} 的股票投資組合</h1>
+    </div>
+
+    <div class="table-container">
+        <table id="portfolio-table">
+            <thead>
+                <tr>
+                    <th>股票名稱</th>
+                    <th>最新價</th>
+                    <th>持有股數</th>
+                    <th>投資損益</th>
+                    <th>建議買入價</th>
+                    <th>建議賣出價</th>
+                    <th>操作建議</th>
+                    <th>加碼順位</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <tr><td colspan="8" class="loading">載入中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const userName = "{{ user_name }}";
+    
+    // 數字格式化
+    const formatNumber = (num) => new Intl.NumberFormat('en-US').format(Math.round(num));
+    const formatCurrency = (num) => '$' + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    
+    // 判斷標籤 CSS Class
+    const getTagClass = (rec) => {
+        if (!rec) return 'tag-wait';
+        if (rec.includes('大買') || rec.includes('中買')) return 'tag-buy-big';
+        if (rec.includes('小買')) return 'tag-buy-small';
+        if (rec.includes('大賣') || rec.includes('中賣')) return 'tag-sell-big';
+        if (rec.includes('小賣')) return 'tag-sell-small';
+        if (rec.includes('續抱')) return 'tag-hold';
+        return 'tag-wait';
+    };
+
+    // 判斷損益顏色 (台股: 紅漲綠跌)
+    const getPnlClass = (val) => {
+        if (val > 0) return 'text-positive';
+        if (val < 0) return 'text-negative';
+        return 'text-neutral';
+    };
+
+    // 載入資料
+    async function loadData() {
+        try {
+            const response = await fetch(`/api/portfolio/${userName}`);
+            const result = await response.json();
+            
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            if (result.data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="loading">目前沒有任何庫存或追蹤標的。</td></tr>';
+                return;
+            }
+
+            result.data.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                // 損益計算
+                const pnlClass = getPnlClass(item.pnl_amount);
+                const pnlSign = item.pnl_amount > 0 ? '+' : '';
+                
+                tr.innerHTML = `
+                    <td>
+                        <div class="stock-name-cell">
+                            <span class="stock-name">${item.name}</span>
+                            <span class="stock-code">${item.code}</span>
+                        </div>
+                    </td>
+                    <td>${item.current_price ? formatCurrency(item.current_price) : '-'}</td>
+                    <td>${formatNumber(item.shares)}</td>
+                    <td>
+                        <div class="pnl-cell ${pnlClass}">
+                            <span>${pnlSign}${formatNumber(item.pnl_amount)}</span>
+                            <span class="pnl-percent">(${pnlSign}${item.pnl_percent.toFixed(2)}%)</span>
+                        </div>
+                    </td>
+                    <td>${item.suggested_buy ? formatCurrency(item.suggested_buy) : '-'}</td>
+                    <td>${item.suggested_sell ? formatCurrency(item.suggested_sell) : '-'}</td>
+                    <td>
+                        <span class="tag ${getTagClass(item.recommendation)}">${item.recommendation || '👀 觀望'}</span>
+                    </td>
+                    <td>
+                        <div class="buy-reason" title="${item.buy_reason || ''}">${item.buy_reason || '-'}</div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (error) {
+            console.error("Error loading portfolio:", error);
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="8" class="loading">載入失敗，請稍後再試。</td></tr>';
+        }
+    }
+
+    // 初始化
+    loadData();
+</script>
+</body>
+</html>

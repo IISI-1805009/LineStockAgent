@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>我的投資資料庫</title>
+    <style>
+        :root {
+            --bg-color: #191919;
+            --surface-color: #202020;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.5);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-color: #2EAADC;
+
+            /* 台股專屬色彩標籤 */
+            --tag-big-buy: rgba(235, 87, 87, 0.2);
+            --tag-big-buy-text: #FF6B6B;
+            --tag-mid-buy: rgba(235, 87, 87, 0.15);
+            --tag-mid-buy-text: #FF6B6B;
+            --tag-small-buy: rgba(255, 153, 153, 0.2);
+            --tag-small-buy-text: #FF9999;
+
+            --tag-big-sell: rgba(39, 174, 96, 0.2);
+            --tag-big-sell-text: #4ADE80;
+            --tag-mid-sell: rgba(39, 174, 96, 0.15);
+            --tag-mid-sell-text: #4ADE80;
+            --tag-small-sell: rgba(167, 243, 208, 0.2);
+            --tag-small-sell-text: #A7F3D0;
+
+            --tag-hold: rgba(255, 255, 255, 0.1);
+            --tag-hold-text: #E5E7EB;
+            --tag-wait: rgba(255, 255, 255, 0.05);
+            --tag-wait-text: #9CA3AF;
+        }
+
+        html,
+        body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            position: fixed;
+            margin: 0;
+            padding: 0;
+            overscroll-behavior: none;
+            touch-action: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .scroll-wrapper {
+            height: 100vh;
+            width: 100vw;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 20px;
+            box-sizing: border-box;
+            overscroll-behavior-y: contain;
+            touch-action: pan-y;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .user-id-badge {
+            font-size: 12px;
+            background: var(--surface-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .tab:hover {
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Toggle Switch CSS */
+        input:checked + .slider {
+            background-color: #4CD964 !important;
+        }
+        input:checked + .slider > span {
+            transform: translateX(16px);
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            cursor: pointer;
+        }
+
+        tbody tr:hover {
+            background-color: var(--surface-color);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Tags */
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 20px;
+            white-space: nowrap;
+        }
+
+        .pnl-positive {
+            color: var(--tag-big-buy-text);
+        }
+
+        .pnl-negative {
+            color: var(--tag-big-sell-text);
+        }
+
+        .text-secondary {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        /* Loader */
+        .loader {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface-color);
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            font-size: 20px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: var(--tag-big-sell);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            text-align: right;
+            max-width: 65%;
+        }
+    </style>
+    <!-- 引入 LIFF SDK -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+
+<body>
+    <!-- 開發者狀態列 (預設隱藏) -->
+    <div id="devBanner" style="display: none; position: sticky; top: 0; left: 0; width: 100%; background: #FF6B6B; color: white; padding: 10px 16px; box-sizing: border-box; z-index: 3000; font-size: 14px; font-weight: bold; display: none; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+        <span id="devBannerText">開發者模式檢視中</span>
+        <button onclick="devRestoreUser()" style="background: white; color: #FF6B6B; border: none; padding: 4px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px;">還原</button>
+    </div>
+
+    <div class="scroll-wrapper">
+        <div class="container">
+            <h1>
+                📊 專屬投資資料庫
+                <div style="font-size: 14px; font-weight: bold; margin-top: 8px;">
+                    大盤：{{ market_timing }}
+                </div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                    🕒 資料最後更新時間：{{ update_time }}
+                </div>
+            </h1>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('inventory')"><span
+                        style="font-size: 20px;">💼</span><br>庫存清單</div>
+                <div class="tab" onclick="switchTab('watchlist')"><span style="font-size: 20px;">⭐</span><br>關注清單</div>
+                <div class="tab" onclick="switchTab('history')"><span style="font-size: 20px;">📜</span><br>歷史紀錄</div>
+                <div class="tab" onclick="switchTab('market_trend')"><span style="font-size: 20px;">📊</span><br>大盤趨勢
+                </div>
+                <div class="tab" onclick="switchTab('settings')"><span style="font-size: 20px;">⚙️</span><br>設定</div>
+            </div>
+
+            <div id="inventory-tab" class="tab-content active">
+                <div id="unsettled-warning"
+                    style="display: none; background: rgba(255, 107, 107, 0.15); border: 1px solid #FF6B6B; border-left: 4px solid #FF6B6B; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
+                    <div
+                        style="color: #FF6B6B; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <span>⚠️</span> 近期交割提醒 (T+2)
+                    </div>
+                    <div id="unsettled-details" style="font-size: 14px; color: var(--text-primary);"></div>
+                </div>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                    <div id="inventory-summary"
+                        style="flex: 1; font-size: 14px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 6px; display: flex; flex-direction: column; justify-content: center;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; align-items: stretch;">
+                        <button onclick="showActionModal('buy_inventory')"
+                            style="flex: 1; background: var(--tag-big-buy-text); color: black; border: none; padding: 6px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 15px;">+
+                            買進股票</button>
+                        <button onclick="showEmailBindModal()"
+                            style="flex: 1; background: var(--accent-color); color: white; border: none; padding: 6px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 15px;">⚙️
+                            庫存自動管理</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>股票</th>
+                                <th>短線建議</th>
+                                <th>長線建議</th>
+                                <th>現價</th>
+                                <th>損益</th>
+                                <th>報酬率</th>
+                                <th>法人目標價</th>
+                                <th>股數</th>
+                                <th>成本價</th>
+                                <th>現值</th>
+                                <th>動能</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-body">
+                            <tr>
+                                <td colspan="11" class="loader">載入中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="watchlist-tab" class="tab-content">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+                    <button onclick="showActionModal('add_watchlist')"
+                        style="background: var(--accent-color); color: white; border: none; padding: 10px 16px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">+
+                        新增關注</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>股票</th>
+                                <th>短線建議</th>
+                                <th>長線建議</th>
+                                <th>現價</th>
+                                <th>法人目標價</th>
+                                <th>建議買入價</th>
+                                <th>動能</th>
+                            </tr>
+                        </thead>
+                        <tbody id="watchlist-body">
+                            <tr>
+                                <td colspan="7" class="loader">載入中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="history-tab" class="tab-content">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                    <div id="history-summary"
+                        style="font-size: 14px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 6px;">
+                        <!-- 損益總額顯示區 -->
+                    </div>
+                    <select id="history-filter" onchange="applyHistoryFilter()"
+                        style="padding: 10px 16px; font-size: 16px; border-radius: 6px; background: var(--surface-color); color: var(--text-primary); border: 1px solid var(--border-color); cursor: pointer; outline: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <option value="all">全部紀錄</option>
+                        <option value="this_month">本月賣出</option>
+                        <option value="last_month">上月賣出</option>
+                        <option value="this_year">今年賣出</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>時間</th>
+                                <th>股票</th>
+                                <th>動作</th>
+                                <th>股數</th>
+                                <th>成交價</th>
+                                <th>總金額</th>
+                                <th>實現損益</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-body">
+                            <tr>
+                                <td colspan="8" class="loader">載入中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="market_trend-tab" class="tab-content">
+                <div id="market_trend-body"
+                    style="background: var(--surface-color); padding: 20px; border-radius: 8px; line-height: 1.6;">
+                    <div class="loader" style="text-align:center;">大盤分析載入中... (約需 15-30 秒)</div>
+                </div>
+            </div>
+
+            <div id="settings-tab" class="tab-content">
+                <div style="background: var(--surface-color); padding: 20px; border-radius: 8px; line-height: 1.6;">
+                    <h3 style="margin-top: 0;">帳號資訊</h3>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+                        <span class="user-id-badge" id="displayUserId">User ID: 載入中...</span>
+                        <button id="copyUserIdBtn"
+                            style="display: none; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">複製</button>
+                    </div>
+
+                    <h3 style="margin-top: 0;">推播通知設定</h3>
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 500;">大買/大賣通知</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">開啟後，系統會每日檢查關注與庫存清單</div>
+                            </div>
+                            <label class="switch" style="position: relative; display: inline-block; width: 40px; height: 24px;">
+                                <input type="checkbox" id="notifyEnabledToggle" style="opacity: 0; width: 0; height: 0;">
+                                <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: .4s; border-radius: 24px;">
+                                    <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 500;">通知時間</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">僅在營業日（週一至週五）發送</div>
+                            </div>
+                            <select id="notifyTimeSelect" style="padding: 8px; background: var(--bg-color); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; outline: none;">
+                                <option value="09:00">09:00</option>
+                                <option value="09:30">09:30</option>
+                                <option value="10:00">10:00</option>
+                                <option value="10:30">10:30</option>
+                                <option value="11:00">11:00</option>
+                                <option value="11:30">11:30</option>
+                                <option value="12:00">12:00</option>
+                                <option value="12:30">12:30</option>
+                                <option value="13:00">13:00</option>
+                                <option value="13:30">13:30</option>
+                                <option value="14:00">14:00</option>
+                                <option value="14:30">14:30</option>
+                                <option value="15:00">15:00</option>
+                            </select>
+                        </div>
+                        
+                        <button onclick="saveSettings()" style="margin-top: 16px; width: 100%; padding: 12px; background: var(--accent-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">儲存設定</button>
+                    </div>
+                </div>
+                
+                <!-- 開發者專區 (預設隱藏) -->
+                <div id="devSection" style="display: none; background: rgba(255, 107, 107, 0.1); border: 1px solid #FF6B6B; padding: 20px; border-radius: 8px; margin-top: 24px; line-height: 1.6;">
+                    <h3 style="margin-top: 0; color: #FF6B6B; display: flex; align-items: center; gap: 8px;">🛠 開發者專區</h3>
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">輸入目標使用者的 Email 或 User ID，並提供開發者密碼以切換檢視。</div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <input type="text" id="devTargetInput" placeholder="請輸入 Email 或 User ID" onfocus="setTimeout(() => this.scrollIntoView({behavior: 'smooth', block: 'center'}), 300)" style="width: 100%; padding: 12px; background: var(--bg-color); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; outline: none; font-size: 16px;">
+                        <input type="password" id="devPasswordInput" placeholder="請輸入開發者密碼" onfocus="setTimeout(() => this.scrollIntoView({behavior: 'smooth', block: 'center'}), 300)" style="width: 100%; padding: 12px; background: var(--bg-color); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; outline: none; font-size: 16px;">
+                        
+                        <button onclick="devSwitchUser()" style="width: 100%; padding: 12px; background: #FF6B6B; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                            切換身分
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Modal -->
+        <div id="detailModal" class="modal-overlay" onclick="closeModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <div class="modal-title" id="modalTitle">股票詳情</div>
+                    <div class="modal-close" onclick="closeModal(event)">&times;</div>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- 內容動態注入 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Modal -->
+        <div id="actionModal" class="modal-overlay" onclick="closeActionModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <div class="modal-title" id="actionModalTitle">動作</div>
+                    <div class="modal-close" onclick="closeActionModal(event)">&times;</div>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="actionType">
+                    <div class="form-group" id="fgStockCode">
+                        <label style="color:var(--text-secondary); font-size:14px;">股票代號</label>
+                        <input type="text" id="actionStockCode" placeholder="如 2330"
+                            style="width:100%; padding:10px; margin-top:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color); border-radius:6px; font-size:16px;">
+                    </div>
+                    <div class="form-group" id="fgShares" style="display:none; margin-top:12px;">
+                        <label style="color:var(--text-secondary); font-size:14px;">股數</label>
+                        <input type="number" id="actionShares" placeholder="如 1000"
+                            style="width:100%; padding:10px; margin-top:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color); border-radius:6px; font-size:16px;">
+                    </div>
+                    <div class="form-group" id="fgPrice" style="display:none; margin-top:12px;">
+                        <label style="color:var(--text-secondary); font-size:14px;">成交單價</label>
+                        <input type="number" step="0.01" id="actionPrice" placeholder="如 950.5"
+                            style="width:100%; padding:10px; margin-top:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color); border-radius:6px; font-size:16px;">
+                    </div>
+                    <button onclick="submitAction()"
+                        style="margin-top:24px; width:100%; padding:12px; background:var(--accent-color); color:white; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold;">確認送出</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirm Modal -->
+        <div id="confirmModal" class="modal-overlay" style="z-index: 2000;" onclick="closeConfirmModal(event, false)">
+            <div class="modal-content" style="max-width: 320px; text-align: center;" onclick="event.stopPropagation()">
+                <div class="modal-body" style="padding: 24px 16px;">
+                    <h3 style="margin-top: 0; color: var(--text-primary); font-size: 18px;" id="confirmModalText">
+                        確定要執行此操作嗎？</h3>
+                    <div style="display: flex; gap: 12px; margin-top: 24px;">
+                        <button onclick="closeConfirmModal(event, false)"
+                            style="flex:1; background: var(--bg-color); color: var(--text-primary); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 16px;">取消</button>
+                        <button onclick="closeConfirmModal(event, true)"
+                            style="flex:1; background: var(--accent-color); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 16px;">確定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Modal -->
+        <div id="alertModal" class="modal-overlay" style="z-index: 2000;" onclick="closeAlertModal(event)">
+            <div class="modal-content" style="max-width: 320px; text-align: center;" onclick="event.stopPropagation()">
+                <div class="modal-body" style="padding: 24px 16px;">
+                    <h3 style="margin-top: 0; color: var(--text-primary); font-size: 18px;" id="alertModalText">提示訊息
+                    </h3>
+                    <div style="margin-top: 24px;">
+                        <button onclick="closeAlertModal(event)"
+                            style="width: 100%; background: var(--accent-color); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 16px;">我知道了</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Check Modal -->
+        <div id="healthCheckModal" class="modal-overlay" onclick="closeHealthCheckModal(event)">
+            <div class="modal-content" style="max-width: 95%; width: 600px; padding: 20px 12px;"
+                onclick="event.stopPropagation()">
+                <div class="modal-header" style="padding: 0 8px 12px 8px;">
+                    <h2 style="margin:0; font-size:18px;" id="healthCheckTitle">股票健檢 (AI)</h2>
+                    <button class="close-btn" onclick="closeHealthCheckModal()">×</button>
+                </div>
+                <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding: 8px; line-height: 1.6;"
+                    id="healthCheckBody">
+                    <!-- Content will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Bind Modal -->
+        <div id="emailBindModal" class="modal-overlay" onclick="closeEmailBindModal(event)">
+            <div class="modal-content" style="max-width: 500px;" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <div class="modal-title">⚙️ 庫存自動管理設定</div>
+                    <div class="modal-close" onclick="closeEmailBindModal(event)">&times;</div>
+                </div>
+                <div class="modal-body" style="line-height: 1.6;">
+
+                    <div
+                        style="background: rgba(46, 170, 220, 0.2); border: 1px solid var(--accent-color); padding: 16px; border-radius: 8px; margin-bottom: 16px; text-align: center;">
+                        <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">目前綁定信箱</div>
+                        <div id="currentBoundEmail" style="font-size: 22px; font-weight: bold; color: white;">載入中...
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="color:var(--text-secondary); font-size:14px;">更換 / 綁定信箱</label>
+                        <div style="display:flex; gap:8px; margin-top:8px;">
+                            <input type="email" id="bindEmailInput"
+                                oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
+                                placeholder="請輸入您收券商信件的 Email"
+                                style="flex:1; padding:10px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color); border-radius:6px; font-size:16px;">
+                            <button onclick="submitEmailBind()"
+                                style="background:var(--accent-color); color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:bold;">綁定</button>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background: rgba(255, 255, 255, 0.05); margin-top: 24px; padding: 12px; border-radius: 6px; margin-bottom: 16px;">
+                        <h4 style="margin: 0 0 8px 0; color: var(--text-primary);">💡 什麼是庫存自動管理？</h4>
+                        <p style="margin: 0; font-size: 14px; color: var(--text-secondary);">
+                            只要將券商的「成交回報」信件自動轉寄給系統，系統就會在您買賣成交的瞬間，<strong
+                                style="color:var(--tag-big-buy-text);">自動更新庫存</strong> 並發送 LINE 通知給您！
+                        </p>
+                    </div>
+
+                    <div style="padding-top: 16px; border-top: 1px dashed var(--border-color);">
+                        <h4 style="margin: 0 0 12px 0;">🛠️ 自動轉寄設定教學 (以 Gmail 為例)</h4>
+                        <ol
+                            style="margin: 0; padding-left: 20px; font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
+                            <li>登入您上方綁定的信箱 (需使用電腦版網頁)。</li>
+                            <li>進入<strong>設定 > 轉寄和 POP/IMAP</strong>，新增轉寄地址：<br>
+                                <div
+                                    style="display:inline-flex; align-items:center; gap:8px; margin-top:4px; background:var(--bg-color); padding:4px 8px; border-radius:4px; border:1px solid var(--border-color);">
+                                    <strong style="color:var(--text-primary);">jiqiwang1985@gmail.com</strong>
+                                    <button onclick="copyToClipboard('jiqiwang1985@gmail.com', this)"
+                                        style="background:var(--surface-color); color:var(--text-primary); border:1px solid var(--border-color); padding:2px 6px; border-radius:4px; cursor:pointer; font-size:12px;">複製</button>
+                                </div>
+                            </li>
+                            <li>建立一個<strong>篩選器</strong>，條件設定：包含字詞 <strong style="color:var(--text-primary);">凱基證券
+                                    成交回報</strong>。</li>
+                            <li>篩選器動作選擇：<strong>轉寄給 jiqiwang1985@gmail.com</strong> 並完成建立。</li>
+                            <li>完成！未來您成交時系統會在一秒內自動記帳。</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let USER_ID = "";
+            let ORIGINAL_DEV_ID = "";
+            const LIFF_ID = "{{ liff_id }}";
+
+            async function initLiff() {
+                try {
+                    await liff.init({ liffId: LIFF_ID });
+                    if (!liff.isLoggedIn()) {
+                        liff.login();
+                    } else {
+                        const profile = await liff.getProfile();
+                        USER_ID = profile.userId;
+                        document.getElementById('displayUserId').innerText = 'User ID: ' + USER_ID;
+                        const copyBtn = document.getElementById('copyUserIdBtn');
+                        copyBtn.style.display = 'inline-block';
+                        copyBtn.onclick = () => {
+                            navigator.clipboard.writeText(USER_ID).then(() => {
+                                copyBtn.innerText = '已複製！';
+                                setTimeout(() => { copyBtn.innerText = '複製'; }, 2000);
+                            });
+                        };
+                        
+                        if (USER_ID === '{{ dev_userid }}') {
+                            ORIGINAL_DEV_ID = USER_ID;
+                            document.getElementById('devSection').style.display = 'block';
+                        }
+                        
+                        loadData('inventory');
+                    }
+                } catch (err) {
+                    console.error('LIFF 初始化失敗', err);
+                    document.getElementById('displayUserId').innerText = 'LIFF 初始化失敗';
+                }
+            }
+
+            function switchTab(tabName) {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                // 找出對應的 tab (使用 onclick 屬性比對)
+                document.querySelectorAll('.tab').forEach(t => {
+                    if (t.getAttribute('onclick') === `switchTab('${tabName}')`) {
+                        t.classList.add('active');
+                    }
+                });
+
+                document.getElementById(tabName + '-tab').classList.add('active');
+
+                if (tabName !== 'settings') {
+                    loadData(tabName);
+                } else {
+                    loadSettings();
+                }
+            }
+
+            function getTagStyle(recommendation) {
+                const r = recommendation || "";
+                if (r.includes("大買")) return `background: var(--tag-big-buy); color: var(--tag-big-buy-text);`;
+                if (r.includes("中買")) return `background: var(--tag-mid-buy); color: var(--tag-mid-buy-text);`;
+                if (r.includes("小買")) return `background: var(--tag-small-buy); color: var(--tag-small-buy-text);`;
+                if (r.includes("大賣") || r.includes("出清")) return `background: var(--tag-big-sell); color: var(--tag-big-sell-text);`;
+                if (r.includes("中賣") || r.includes("減碼")) return `background: var(--tag-mid-sell); color: var(--tag-mid-sell-text);`;
+                if (r.includes("小賣")) return `background: var(--tag-small-sell); color: var(--tag-small-sell-text);`;
+                if (r.includes("續抱")) return `background: var(--tag-hold); color: var(--tag-hold-text);`;
+                return `background: var(--tag-wait); color: var(--tag-wait-text);`;
+            }
+
+            const invOrder = ["大賣", "大買", "中賣", "中買", "小賣", "小買", "續抱", "觀望"];
+            const watchOrder = ["大買", "中買", "小買", "大賣", "中賣", "小賣", "續抱", "觀望"];
+
+            function getRank(rec, orderArr) {
+                if (!rec) return 999;
+                for (let i = 0; i < orderArr.length; i++) {
+                    if (rec.includes(orderArr[i])) return i;
+                }
+                return 999;
+            }
+
+            function extractScore(reason) {
+                if (!reason) return '';
+                const match = reason.match(/\(([-]?[\d.]+\/\d+)\)/);
+                if (match) return match[1];
+                return '';
+            }
+
+            async function loadData(tabName) {
+                if (!USER_ID) return;
+                try {
+                    let endpoint = '';
+                    if (tabName === 'inventory') endpoint = `/api/portfolio/${USER_ID}`;
+                    if (tabName === 'watchlist') endpoint = `/api/watchlist/${USER_ID}`;
+                    if (tabName === 'history') endpoint = `/api/history/${USER_ID}`;
+                    if (tabName === 'market_trend') endpoint = `/api/market_trend`;
+
+                    const res = await fetch(endpoint);
+                    const data = await res.json();
+
+                    if (tabName === 'inventory') renderInventory(data);
+                    if (tabName === 'watchlist') renderWatchlist(data.data);
+                    if (tabName === 'history') {
+                        window.currentHistoryData = data.data;
+                        applyHistoryFilter();
+                    }
+                    if (tabName === 'market_trend') {
+                        document.getElementById('market_trend-body').innerHTML = data.html || `
+                            <h2 style="margin-top:0;">目前大盤無資料或抓取失敗</h2>
+                        `;
+                    }
+
+                } catch (e) {
+                    console.error(e);
+                    let targetId = tabName + '-body';
+                    if (document.getElementById(targetId)) {
+                        document.getElementById(targetId).innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">載入失敗</td></tr>`;
+                    }
+                }
+            }
+
+            async function loadSettings() {
+                if (!USER_ID) return;
+                try {
+                    const res = await fetch(`/api/user/${USER_ID}/settings`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        document.getElementById('notifyEnabledToggle').checked = data.notify_enabled;
+                        document.getElementById('notifyTimeSelect').value = data.notify_time;
+                    }
+                } catch (e) {
+                    console.error("載入設定失敗", e);
+                }
+            }
+
+            async function saveSettings() {
+                if (!USER_ID) return;
+                const notify_enabled = document.getElementById('notifyEnabledToggle').checked;
+                const notify_time = document.getElementById('notifyTimeSelect').value;
+                try {
+                    const res = await fetch(`/api/user/${USER_ID}/settings`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ notify_enabled, notify_time })
+                    });
+                    if (res.ok) {
+                        await customAlert("設定已儲存成功！");
+                    } else {
+                        await customAlert("儲存設定失敗");
+                    }
+                } catch (e) {
+                    console.error("儲存設定失敗", e);
+                    await customAlert("儲存設定發生錯誤");
+                }
+            }
+
+            async function devSwitchUser() {
+                const inputVal = document.getElementById('devTargetInput').value.trim();
+                const password = document.getElementById('devPasswordInput').value;
+                
+                if (!inputVal) {
+                    await customAlert("請輸入 目標 Email 或 User ID");
+                    return;
+                }
+                if (!password) {
+                    await customAlert("請輸入 開發者密碼");
+                    return;
+                }
+                
+                try {
+                    const res = await fetch(`/api/dev/resolve_user`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ input_val: inputVal, password: password })
+                    });
+                    
+                    if (res.ok) {
+                        const data = await res.json();
+                        USER_ID = data.user_id;
+                        
+                        // Update UI to reflect the switched user
+                        document.getElementById('displayUserId').innerText = 'User ID: ' + USER_ID;
+                        document.getElementById('devBanner').style.display = 'flex';
+                        document.getElementById('devBannerText').innerText = `目前正以 ${inputVal} 的身分檢視`;
+                        
+                        // Reload data
+                        switchTab('inventory');
+                    } else {
+                        const errorData = await res.json();
+                        await customAlert(`切換失敗: ${errorData.detail || '未知錯誤'}`);
+                    }
+                } catch (e) {
+                    console.error("開發者切換失敗", e);
+                    await customAlert("切換過程中發生錯誤");
+                }
+            }
+
+            function devRestoreUser() {
+                if (ORIGINAL_DEV_ID) {
+                    USER_ID = ORIGINAL_DEV_ID;
+                    document.getElementById('displayUserId').innerText = 'User ID: ' + USER_ID;
+                    document.getElementById('devBanner').style.display = 'none';
+                    switchTab('inventory');
+                }
+            }
+
+            function renderInventory(apiResponse) {
+                const data = apiResponse.data || [];
+                const unsettled = apiResponse.unsettled || { total_amount: 0, details: [] };
+
+                const tbody = document.getElementById('inventory-body');
+                const warningBox = document.getElementById('unsettled-warning');
+                const warningDetails = document.getElementById('unsettled-details');
+
+                if (unsettled.total_amount > 0) {
+                    warningBox.style.display = 'block';
+                    let detailsHtml = `<div style="margin-bottom: 6px;">應付淨額：<strong style="font-size: 16px; color: #ff4d4f;">$${unsettled.total_amount.toLocaleString()}</strong></div>`;
+                    unsettled.details.forEach(d => {
+                        let actionText = d.action === 'BUY' ? '買進' : '賣出';
+                        let actionColor = d.action === 'BUY' ? '#ff4d4f' : '#52c41a'; // 台股買紅賣綠
+                        let amtStr = (d.amount > 0 ? '' : '-') + '$' + Math.abs(d.amount).toLocaleString();
+                        detailsHtml += `<div style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">• ${d.trade_date} <span style="color:${actionColor}">${actionText}</span> ${d.name} ${d.shares} 股 (交割日: ${d.settlement_date}) - <span style="color:${actionColor}">${amtStr}</span></div>`;
+                    });
+                    warningDetails.innerHTML = detailsHtml;
+                } else {
+                    warningBox.style.display = 'none';
+                }
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="11" class="loader">目前庫存為空</td></tr>`;
+                    document.getElementById('inventory-summary').innerHTML = '';
+                    return;
+                }
+
+                let totalCost = 0;
+                let totalValue = 0;
+                data.forEach(item => {
+                    totalCost += (item.avg_cost || 0) * (item.shares || 0);
+                    totalValue += (item.current_price || 0) * (item.shares || 0);
+                });
+                let totalPnl = totalValue - totalCost;
+                let totalPnlPercent = totalCost > 0 ? (totalPnl / totalCost * 100) : 0;
+
+                const summaryDiv = document.getElementById('inventory-summary');
+                if (summaryDiv) {
+                    const color = totalPnl > 0 ? '#ff4d4f' : (totalPnl < 0 ? '#52c41a' : 'inherit');
+                    const sign = totalPnl > 0 ? '+' : '';
+                    summaryDiv.innerHTML = `
+                    <div style="margin-bottom: 4px;">成本總額: <strong>${totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</strong></div>
+                    <div style="margin-bottom: 4px;">現值總額: <strong>${totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</strong></div>
+                    <div>未實現損益: <span style="color: ${color}; font-weight: bold;">${sign}${totalPnl.toLocaleString(undefined, { maximumFractionDigits: 0 })} (${sign}${totalPnlPercent.toFixed(2)}%)</span></div>
+                `;
+                }
+
+                data.sort((a, b) => {
+                    const rankA = getRank(a.long_term_rec || a.recommendation, invOrder);
+                    const rankB = getRank(b.long_term_rec || b.recommendation, invOrder);
+                    if (rankA !== rankB) return rankA - rankB;
+
+                    const ltScoreAStr = extractScore(a.long_term_reason);
+                    const ltScoreBStr = extractScore(b.long_term_reason);
+                    const ltScoreA = ltScoreAStr ? parseInt(ltScoreAStr.split('/')[0]) : -1;
+                    const ltScoreB = ltScoreBStr ? parseInt(ltScoreBStr.split('/')[0]) : -1;
+                    if (ltScoreA !== ltScoreB) return ltScoreB - ltScoreA;
+
+                    const stRankA = getRank(a.short_term_rec || a.recommendation, invOrder);
+                    const stRankB = getRank(b.short_term_rec || b.recommendation, invOrder);
+                    if (stRankA !== stRankB) return stRankA - stRankB;
+
+                    const stScoreAStr = extractScore(a.short_term_reason || a.buy_reason);
+                    const stScoreBStr = extractScore(b.short_term_reason || b.buy_reason);
+                    const stScoreA = stScoreAStr ? parseInt(stScoreAStr.split('/')[0]) : -1;
+                    const stScoreB = stScoreBStr ? parseInt(stScoreBStr.split('/')[0]) : -1;
+                    return stScoreB - stScoreA;
+                });
+
+                tbody.innerHTML = data.map(item => {
+                    const etfBadge = item.is_etf ? '<span class="status-tag" style="background: rgba(255,165,0,0.2); color: #ffa500; margin-left: 5px;">ETF</span>' : '';
+                    const currentValue = (item.current_price || 0) * (item.shares || 0);
+                    const infoStr = encodeURIComponent(JSON.stringify(item));
+                    const stScore = extractScore(item.short_term_reason || item.buy_reason);
+                    const stScoreHtml = stScore ? `<br><span class="text-secondary" style="font-size:11px;">分數: ${stScore}</span>` : '';
+                    const ltScore = extractScore(item.long_term_reason);
+                    const ltScoreHtml = ltScore ? `<br><span class="text-secondary" style="font-size:11px;">分數: ${ltScore}</span>` : '';
+
+                    return `
+                    <tr onclick="showInventoryModal('${infoStr}')">
+                        <td><strong>${item.name}</strong> ${etfBadge} <br><span class="text-secondary">${item.code}</span></td>
+                        <td><span class="status-tag" style="${getTagStyle(item.short_term_rec || item.recommendation)}">${item.short_term_rec || item.recommendation || '未知'}</span>${stScoreHtml}</td>
+                        <td><span class="status-tag" style="${getTagStyle(item.long_term_rec || item.recommendation)}">${item.long_term_rec || item.recommendation || '未知'}</span>${ltScoreHtml}</td>
+                        <td>${item.current_price || '-'}</td>
+                        <td style="color: ${item.pnl_amount > 0 ? '#ff4d4f' : (item.pnl_amount < 0 ? '#52c41a' : '')}; font-weight: bold;">
+                            ${item.pnl_amount > 0 ? '+' : ''}${item.pnl_amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        </td>
+                        <td style="color: ${item.pnl_percent > 0 ? '#ff4d4f' : (item.pnl_percent < 0 ? '#52c41a' : '')}; font-weight: bold;">
+                            ${item.pnl_percent > 0 ? '+' : ''}${item.pnl_percent.toFixed(2)}%
+                        </td>
+                        <td>${item.target_price || '-'}</td>
+                        <td>${item.shares.toLocaleString()}</td>
+                        <td>${item.avg_cost.toFixed(2)}</td>
+                        <td>${currentValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                        <td>${item.momentum_score || '-'}</td>
+                    </tr>
+                `;
+                }).join('');
+            }
+
+            function renderWatchlist(data) {
+                const tbody = document.getElementById('watchlist-body');
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="loader">目前關注清單為空</td></tr>`;
+                    return;
+                }
+
+                data.sort((a, b) => {
+                    const rankA = getRank(a.long_term_rec || a.recommendation, watchOrder);
+                    const rankB = getRank(b.long_term_rec || b.recommendation, watchOrder);
+                    if (rankA !== rankB) return rankA - rankB;
+
+                    const ltScoreAStr = extractScore(a.long_term_reason);
+                    const ltScoreBStr = extractScore(b.long_term_reason);
+                    const ltScoreA = ltScoreAStr ? parseInt(ltScoreAStr.split('/')[0]) : -1;
+                    const ltScoreB = ltScoreBStr ? parseInt(ltScoreBStr.split('/')[0]) : -1;
+                    if (ltScoreA !== ltScoreB) return ltScoreB - ltScoreA;
+
+                    const stRankA = getRank(a.short_term_rec || a.recommendation, watchOrder);
+                    const stRankB = getRank(b.short_term_rec || b.recommendation, watchOrder);
+                    if (stRankA !== stRankB) return stRankA - stRankB;
+
+                    const stScoreAStr = extractScore(a.short_term_reason || a.buy_reason);
+                    const stScoreBStr = extractScore(b.short_term_reason || b.buy_reason);
+                    const stScoreA = stScoreAStr ? parseInt(stScoreAStr.split('/')[0]) : -1;
+                    const stScoreB = stScoreBStr ? parseInt(stScoreBStr.split('/')[0]) : -1;
+                    return stScoreB - stScoreA;
+                });
+
+                tbody.innerHTML = data.map(item => {
+                    const etfBadge = item.is_etf ? '<span class="status-tag" style="background: rgba(255,165,0,0.2); color: #ffa500; margin-left: 5px;">ETF</span>' : '';
+                    const infoStr = encodeURIComponent(JSON.stringify(item));
+                    const stScore = extractScore(item.short_term_reason || item.buy_reason);
+                    const stScoreHtml = stScore ? `<br><span class="text-secondary" style="font-size:11px;">分數: ${stScore}</span>` : '';
+                    const ltScore = extractScore(item.long_term_reason);
+                    const ltScoreHtml = ltScore ? `<br><span class="text-secondary" style="font-size:11px;">分數: ${ltScore}</span>` : '';
+
+                    return `
+                    <tr onclick="showWatchlistModal('${infoStr}')">
+                        <td><strong>${item.name}</strong> ${etfBadge} <br><span class="text-secondary">${item.code}</span></td>
+                        <td><span class="status-tag" style="${getTagStyle(item.short_term_rec || item.recommendation)}">${item.short_term_rec || item.recommendation || '未知'}</span>${stScoreHtml}</td>
+                        <td><span class="status-tag" style="${getTagStyle(item.long_term_rec || item.recommendation)}">${item.long_term_rec || item.recommendation || '未知'}</span>${ltScoreHtml}</td>
+                        <td>${item.current_price || '-'}</td>
+                        <td>${item.target_price || '-'}</td>
+                        <td>${item.suggested_buy || '-'}</td>
+                        <td>${item.momentum_score || '-'}</td>
+                    </tr>
+                `;
+                }).join('');
+            }
+
+            function applyHistoryFilter() {
+                const data = window.currentHistoryData || [];
+                const filter = document.getElementById('history-filter').value;
+                const now = new Date();
+
+                let filteredData = data;
+
+                if (filter !== 'all') {
+                    filteredData = data.filter(item => {
+                        if (item.action !== 'SELL') return false;
+                        const d = new Date(item.created_at);
+                        if (filter === 'this_month') {
+                            return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+                        } else if (filter === 'last_month') {
+                            const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                            return d.getFullYear() === lastMonth.getFullYear() && d.getMonth() === lastMonth.getMonth();
+                        } else if (filter === 'this_year') {
+                            return d.getFullYear() === now.getFullYear();
+                        }
+                        return true;
+                    });
+                }
+
+                let totalPnl = 0;
+                filteredData.forEach(item => {
+                    if (item.action === 'SELL') {
+                        totalPnl += (item.realized_pnl || 0);
+                    }
+                });
+
+                const summaryDiv = document.getElementById('history-summary');
+                if (summaryDiv) {
+                    const color = totalPnl > 0 ? '#ff4d4f' : (totalPnl < 0 ? '#52c41a' : 'inherit');
+                    const sign = totalPnl > 0 ? '+' : '';
+                    summaryDiv.innerHTML = `期間實現損益: <strong style="color: ${color}; font-size: 16px;">${sign}${totalPnl.toLocaleString(undefined, { maximumFractionDigits: 0 })}</strong>`;
+                }
+
+                renderHistoryTable(filteredData);
+            }
+
+            function renderHistoryTable(data) {
+                const tbody = document.getElementById('history-body');
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="loader">目前沒有符合的歷史紀錄</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.map(item => {
+                    const isBuy = item.action === 'BUY';
+                    const actionBadge = isBuy
+                        ? `<span class="status-tag" style="background:var(--tag-big-buy); color:var(--tag-big-buy-text)">買進</span>`
+                        : `<span class="status-tag" style="background:var(--tag-big-sell); color:var(--tag-big-sell-text)">賣出</span>`;
+
+                    const pnl = item.realized_pnl || 0;
+                    let pnlDisplay = '-';
+                    if (!isBuy) {
+                        const pnlClass = pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
+                        const pnlSign = pnl > 0 ? '+' : '';
+                        pnlDisplay = `<span class="${pnlClass}">${pnlSign}${pnl.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>`;
+                    }
+
+                    const totalAmount = Math.round(item.shares * item.price);
+
+                    return `
+                    <tr>
+                        <td class="text-secondary">${new Date(item.created_at).toLocaleString()}</td>
+                        <td><strong>${item.name || '未知'}</strong> <span class="text-secondary">${item.code}</span></td>
+                        <td>${actionBadge}</td>
+                        <td>${item.shares.toLocaleString()}</td>
+                        <td>${item.price}</td>
+                        <td>$${totalAmount.toLocaleString()}</td>
+                        <td>${pnlDisplay}</td>
+                        <td><button onclick="deleteHistory(${item.id})" style="background: transparent; color: var(--tag-big-sell-text); border: 1px solid var(--tag-big-sell-text); border-radius: 4px; cursor: pointer; padding: 4px 8px;">刪除</button></td>
+                    </tr>
+                `;
+                }).join('');
+            }
+
+            async function deleteHistory(recordId) {
+                const ok = await customConfirm('確定要刪除這筆歷史紀錄嗎？（這不會影響現有庫存）');
+                if (!ok) return;
+
+                try {
+                    const res = await fetch(`/api/history/${USER_ID}/${recordId}`, {
+                        method: 'DELETE'
+                    });
+                    if (res.ok) {
+                        loadData('history');
+                    } else {
+                        await customAlert('刪除失敗');
+                    }
+                } catch (e) {
+                    await customAlert('連線失敗');
+                }
+            }
+
+            function showInventoryModal(infoStr) {
+                const item = JSON.parse(decodeURIComponent(infoStr));
+                const currentValue = (item.current_price || 0) * (item.shares || 0);
+
+                document.getElementById('modalTitle').innerHTML = `${item.name} <span class="text-secondary">${item.code}</span>`;
+
+                let html = `
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <button onclick="showActionModal('buy_inventory', '${item.code}')" style="flex:1; background: var(--tag-big-buy); color: var(--tag-big-buy-text); border: 1px solid var(--tag-big-buy-text); padding: 8px; border-radius: 4px; cursor: pointer;">加碼買進</button>
+                    <button onclick="showActionModal('sell_inventory', '${item.code}')" style="flex:1; background: var(--tag-big-sell); color: var(--tag-big-sell-text); border: 1px solid var(--tag-big-sell-text); padding: 8px; border-radius: 4px; cursor: pointer;">賣出</button>
+                </div>
+                <div class="detail-row"><span class="detail-label">股票</span><span class="detail-value">${item.name} (${item.code})</span></div>
+                <div class="detail-row"><span class="detail-label">短線建議</span><span class="detail-value"><span class="status-tag" style="${getTagStyle(item.short_term_rec || item.recommendation)}">${item.short_term_rec || item.recommendation || '未知'}</span></span></div>
+                <div class="detail-row"><span class="detail-label">長線建議</span><span class="detail-value"><span class="status-tag" style="${getTagStyle(item.long_term_rec || item.recommendation)}">${item.long_term_rec || item.recommendation || '未知'}</span></span></div>
+                <div class="detail-row"><span class="detail-label">動能</span><span class="detail-value">${item.momentum_score || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">現價</span><span class="detail-value">${item.current_price || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">股數</span><span class="detail-value">${(item.shares || 0).toLocaleString()}</span></div>
+                <div class="detail-row"><span class="detail-label">成本價</span><span class="detail-value">${(item.avg_cost || 0).toFixed(2)}</span></div>
+                <div class="detail-row"><span class="detail-label">現值</span><span class="detail-value">${currentValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></div>
+                <div class="detail-row"><span class="detail-label">法人目標價</span><span class="detail-value">${item.target_price || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">建議賣出價</span><span class="detail-value">${item.suggested_sell || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">建議買入價</span><span class="detail-value">${item.suggested_buy || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">建議停損價</span><span class="detail-value">${item.stop_loss || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">技術指標</span><span class="detail-value">${item.technical || '-'}</span></div>
+                <div class="detail-row" style="flex-direction:column; align-items:flex-start;">
+                    <span class="detail-label" style="margin-bottom:8px;">[短線] 波段健檢</span>
+                    <span class="detail-value" style="text-align:left; max-width:100%; white-space:pre-wrap;">${item.short_term_reason || item.buy_reason || '-'}</span>
+                </div>
+                <div class="detail-row" style="flex-direction:column; align-items:flex-start;">
+                    <span class="detail-label" style="margin-bottom:8px;">[長線] 存股健檢</span>
+                    <span class="detail-value" style="text-align:left; max-width:100%; white-space:pre-wrap;">${item.long_term_reason || '-'}</span>
+                </div>
+                <button onclick="runHealthCheck('${item.code}', '${item.name}')" style="margin-top:16px; width:100%; background: var(--accent-color); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">🩺 股票健檢 (AI 即時分析)</button>
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <button onclick="showActionModal('edit_inventory', '${item.code}', ${item.shares}, ${item.avg_cost})" style="flex:1; background: #e6f7ff; color: #0050b3; border: 1px solid #91d5ff; padding: 8px; border-radius: 4px; cursor: pointer;">✏️ 修改數量/成本</button>
+                    <button onclick="deleteInventory('${item.code}')" style="flex:1; background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; padding: 8px; border-radius: 4px; cursor: pointer;">🗑️ 刪除</button>
+                </div>
+            `;
+
+                document.getElementById('modalBody').innerHTML = html;
+                document.getElementById('detailModal').classList.add('active');
+            }
+
+            function showWatchlistModal(infoStr) {
+                const item = JSON.parse(decodeURIComponent(infoStr));
+
+                document.getElementById('modalTitle').innerHTML = `${item.name} <span class="text-secondary">${item.code}</span>`;
+
+                let html = `
+                <div class="detail-row"><span class="detail-label">股票</span><span class="detail-value">${item.name} (${item.code})</span></div>
+                <div class="detail-row"><span class="detail-label">短線建議</span><span class="detail-value"><span class="status-tag" style="${getTagStyle(item.short_term_rec || item.recommendation)}">${item.short_term_rec || item.recommendation || '未知'}</span></span></div>
+                <div class="detail-row"><span class="detail-label">長線建議</span><span class="detail-value"><span class="status-tag" style="${getTagStyle(item.long_term_rec || item.recommendation)}">${item.long_term_rec || item.recommendation || '未知'}</span></span></div>
+                <div class="detail-row"><span class="detail-label">動能</span><span class="detail-value">${item.momentum_score || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">現價</span><span class="detail-value">${item.current_price || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">建議買入價</span><span class="detail-value">${item.suggested_buy || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">法人目標價</span><span class="detail-value">${item.target_price || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">技術指標</span><span class="detail-value">${item.technical || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">殖利率</span><span class="detail-value">${item.yield_rate != null ? item.yield_rate + '%' : '-'}</span></div>
+                ${!item.is_etf ? `<div class="detail-row"><span class="detail-label">營收 YoY</span><span class="detail-value">${item.revenue_yoy != null ? item.revenue_yoy + '%' : '-'}</span></div>` : ''}
+                <div class="detail-row" style="flex-direction:column; align-items:flex-start;">
+                    <span class="detail-label" style="margin-bottom:8px;">[短線] 波段健檢</span>
+                    <span class="detail-value" style="text-align:left; max-width:100%; white-space:pre-wrap;">${item.short_term_reason || item.buy_reason || '-'}</span>
+                </div>
+                <div class="detail-row" style="flex-direction:column; align-items:flex-start;">
+                    <span class="detail-label" style="margin-bottom:8px;">[長線] 存股健檢</span>
+                    <span class="detail-value" style="text-align:left; max-width:100%; white-space:pre-wrap;">${item.long_term_reason || '-'}</span>
+                </div>
+                <button onclick="runHealthCheck('${item.code}', '${item.name}')" style="margin-top:16px; width:100%; background: var(--accent-color); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">🩺 股票健檢 (AI 即時分析)</button>
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <button onclick="showActionModal('buy_inventory', '${item.code}')" style="flex:1; background: var(--tag-big-buy); color: var(--tag-big-buy-text); border: 1px solid var(--tag-big-buy-text); padding: 8px; border-radius: 4px; cursor: pointer;">買進</button>
+                    <button onclick="removeWatchlist('${item.code}')" style="flex:1; background: var(--tag-big-sell); color: var(--tag-big-sell-text); border: 1px solid var(--tag-big-sell-text); padding: 8px; border-radius: 4px; cursor: pointer;">從清單移除</button>
+                </div>
+            `;
+
+                document.getElementById('modalBody').innerHTML = html;
+                document.getElementById('detailModal').classList.add('active');
+            }
+
+            function closeHealthCheckModal(e) {
+                if (e) e.stopPropagation();
+                document.getElementById('healthCheckModal').classList.remove('active');
+            }
+
+            async function runHealthCheck(stockCode, stockName) {
+                const body = document.getElementById('healthCheckBody');
+                const title = document.getElementById('healthCheckTitle');
+                title.innerText = `${stockName} (${stockCode}) AI 健檢`;
+                body.innerHTML = `<div style="text-align:center; padding:40px;"><div class="loader"></div><p style="margin-top:16px; font-weight:bold; color:var(--text-primary); font-size:16px;">🧠 專屬 AI 分析師正在為您撰寫報告...</p><p style="margin-top:8px; font-size:13px; color:var(--text-secondary); font-weight:normal; line-height:1.5;">正在深度解析最新在地新聞與技術籌碼<br>這會需要一點時間，請耐心等候 ☕</p></div>`;
+                document.getElementById('healthCheckModal').classList.add('active');
+
+                try {
+                    const res = await fetch(`/api/health_check/${stockCode}`);
+                    const data = await res.json();
+                    if (res.ok) {
+                        body.innerHTML = data.html;
+                    } else {
+                        body.innerHTML = `<p style="color:red; text-align:center;">分析失敗：${data.detail || '未知錯誤'}</p>`;
+                    }
+                } catch (e) {
+                    body.innerHTML = `<p style="color:red; text-align:center;">連線錯誤</p>`;
+                }
+            }
+
+            function closeModal(event) {
+                if (event) {
+                    event.stopPropagation();
+                }
+                document.getElementById('detailModal').classList.remove('active');
+            }
+
+            // Action Modal JS
+            function showActionModal(type, defaultCode = '') {
+                closeModal();
+                document.getElementById('actionType').value = type;
+                document.getElementById('actionStockCode').value = defaultCode;
+                document.getElementById('actionShares').value = '';
+                document.getElementById('actionPrice').value = '';
+
+                document.getElementById('fgShares').style.display = 'none';
+                document.getElementById('fgPrice').style.display = 'none';
+
+                if (type === 'add_watchlist') {
+                    document.getElementById('actionModalTitle').innerText = '新增關注清單';
+                } else if (type === 'buy_inventory') {
+                    document.getElementById('actionModalTitle').innerText = '買進股票';
+                    document.getElementById('fgShares').style.display = 'block';
+                    document.getElementById('fgPrice').style.display = 'block';
+                } else if (type === 'sell_inventory') {
+                    document.getElementById('actionModalTitle').innerText = '賣出股票';
+                    document.getElementById('fgShares').style.display = 'block';
+                    document.getElementById('fgPrice').style.display = 'block';
+                } else if (type === 'edit_inventory') {
+                    document.getElementById('actionModalTitle').innerText = '修改庫存紀錄';
+                    document.getElementById('fgShares').style.display = 'block';
+                    document.getElementById('fgPrice').style.display = 'block';
+                    // arguments[2] and [3] are shares and avg_cost
+                    if (arguments.length >= 4) {
+                        document.getElementById('actionShares').value = arguments[2];
+                        document.getElementById('actionPrice').value = arguments[3];
+                    }
+                }
+
+                document.getElementById('actionModal').classList.add('active');
+            }
+
+            function closeActionModal(e) {
+                if (e) e.stopPropagation();
+                document.getElementById('actionModal').classList.remove('active');
+            }
+
+            let confirmResolve = null;
+            function customConfirm(msg) {
+                return new Promise((resolve) => {
+                    document.getElementById('confirmModalText').innerText = msg;
+                    document.getElementById('confirmModal').classList.add('active');
+                    confirmResolve = resolve;
+                });
+            }
+            function closeConfirmModal(e, result) {
+                if (e) e.stopPropagation();
+                document.getElementById('confirmModal').classList.remove('active');
+                if (confirmResolve) {
+                    confirmResolve(result);
+                    confirmResolve = null;
+                }
+            }
+
+            let alertResolve = null;
+            function customAlert(msg) {
+                return new Promise((resolve) => {
+                    document.getElementById('alertModalText').innerText = msg;
+                    document.getElementById('alertModal').classList.add('active');
+                    alertResolve = resolve;
+                });
+            }
+            function closeAlertModal(e) {
+                if (e) e.stopPropagation();
+                document.getElementById('alertModal').classList.remove('active');
+                if (alertResolve) {
+                    alertResolve();
+                    alertResolve = null;
+                }
+            }
+
+            async function submitAction() {
+                if (!USER_ID) {
+                    await customAlert("請先登入");
+                    return;
+                }
+                const type = document.getElementById('actionType').value;
+                const stockCode = document.getElementById('actionStockCode').value;
+                const shares = parseInt(document.getElementById('actionShares').value || 0);
+                const price = parseFloat(document.getElementById('actionPrice').value || 0);
+
+                if (!stockCode) {
+                    await customAlert("請輸入股票代號");
+                    return;
+                }
+
+                let url = '';
+                let body = {};
+
+                if (type === 'add_watchlist') {
+                    url = `/api/watchlist/${USER_ID}`;
+                    body = { stock_code: stockCode, is_etf: false };
+                } else if (type === 'buy_inventory') {
+                    url = `/api/inventory/buy/${USER_ID}`;
+                    if (shares <= 0 || price <= 0) {
+                        await customAlert("請輸入正確股數與價格");
+                        return;
+                    }
+                    body = { stock_code: stockCode, shares: shares, price: price, is_etf: false };
+                } else if (type === 'sell_inventory') {
+                    url = `/api/inventory/sell/${USER_ID}`;
+                    if (shares <= 0 || price <= 0) {
+                        await customAlert("請輸入正確股數與價格");
+                        return;
+                    }
+                    body = { stock_code: stockCode, shares: shares, price: price, is_etf: false };
+                } else if (type === 'edit_inventory') {
+                    url = `/api/inventory/edit/${USER_ID}`;
+                    if (shares < 0 || price <= 0) {
+                        await customAlert("請輸入正確股數與價格");
+                        return;
+                    }
+                    body = { stock_code: stockCode, shares: shares, price: price, is_etf: false };
+                }
+
+                try {
+                    let method = type === 'edit_inventory' ? 'PUT' : 'POST';
+                    const res = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        await customAlert("操作成功！");
+                        closeActionModal();
+
+                        const activeTab = document.querySelector('.tab.active').innerText;
+                        if (activeTab.includes('庫存')) loadData('inventory');
+                        else if (activeTab.includes('關注')) loadData('watchlist');
+                        else loadData('history');
+                    } else {
+                        await customAlert("錯誤: " + (data.detail || "操作失敗"));
+                    }
+                } catch (e) {
+                    await customAlert("網路錯誤");
+                }
+            }
+
+            async function removeWatchlist(stockCode) {
+                const ok = await customConfirm(`確定要將 ${stockCode} 移出關注清單嗎？`);
+                if (!ok) return;
+                try {
+                    const res = await fetch(`/api/watchlist/${USER_ID}/${stockCode}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        await customAlert("已移除");
+                        closeModal();
+                        loadData('watchlist');
+                    } else {
+                        await customAlert("移除失敗");
+                    }
+                } catch (e) {
+                    await customAlert("網路錯誤");
+                }
+            }
+
+            async function deleteInventory(stockCode) {
+                const ok = await customConfirm(`確定要將庫存 ${stockCode} 刪除嗎？`);
+                if (!ok) return;
+                try {
+                    const res = await fetch(`/api/inventory/delete/${USER_ID}/${stockCode}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        await customAlert("已刪除庫存");
+                        closeModal();
+                        loadData('inventory');
+                    } else {
+                        const data = await res.json();
+                        await customAlert("刪除失敗: " + (data.detail || ""));
+                    }
+                } catch (e) {
+                    await customAlert("網路錯誤");
+                }
+            }
+
+            async function showEmailBindModal() {
+                if (!USER_ID) {
+                    await customAlert("請先登入");
+                    return;
+                }
+                document.getElementById('emailBindModal').classList.add('active');
+                document.getElementById('currentBoundEmail').innerText = "載入中...";
+                try {
+                    const res = await fetch(`/api/user/${USER_ID}/email`);
+                    const data = await res.json();
+                    if (res.ok && data.email) {
+                        document.getElementById('currentBoundEmail').innerText = data.email;
+                        document.getElementById('bindEmailInput').value = data.email;
+                    } else {
+                        document.getElementById('currentBoundEmail').innerText = "尚未綁定";
+                    }
+                } catch (e) {
+                    document.getElementById('currentBoundEmail').innerText = "尚未綁定";
+                }
+            }
+
+            function closeEmailBindModal(e) {
+                if (e) e.stopPropagation();
+                document.getElementById('emailBindModal').classList.remove('active');
+            }
+
+            function copyToClipboard(text, btnElement) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = btnElement.innerText;
+                    btnElement.innerText = "已複製！";
+                    btnElement.style.background = "var(--tag-big-buy)";
+                    setTimeout(() => {
+                        btnElement.innerText = originalText;
+                        btnElement.style.background = "var(--surface-color)";
+                    }, 2000);
+                });
+            }
+
+            async function submitEmailBind() {
+                const email = document.getElementById('bindEmailInput').value.trim();
+                if (!email) {
+                    await customAlert("請輸入 Email");
+                    return;
+                }
+                if (!email.includes('@')) {
+                    await customAlert("請輸入有效的 Email 格式");
+                    return;
+                }
+                try {
+                    const res = await fetch(`/api/user/${USER_ID}/email`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        await customAlert("綁定成功！");
+                        document.getElementById('currentBoundEmail').innerText = email;
+                    } else {
+                        await customAlert("錯誤: " + (data.detail || "操作失敗"));
+                    }
+                } catch (e) {
+                    await customAlert("網路錯誤");
+                }
+            }
+
+            // Init load
+            initLiff();
+        </script>
+    </div>
+</body>
+
+</html>
