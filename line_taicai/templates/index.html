@@ -891,9 +891,27 @@
                 const warningBox = document.getElementById('unsettled-warning');
                 const warningDetails = document.getElementById('unsettled-details');
 
-                if (unsettled.total_amount > 0) {
+                if (unsettled.details && unsettled.details.length > 0) {
                     warningBox.style.display = 'block';
-                    let detailsHtml = `<div style="margin-bottom: 6px;">應付淨額：<strong style="font-size: 16px; color: #ff4d4f;">$${unsettled.total_amount.toLocaleString()}</strong></div>`;
+                    let detailsHtml = `<div style="margin-bottom: 6px;">未來應付交割總額：<strong style="font-size: 16px; color: #ff4d4f;">$${(unsettled.total_amount || 0).toLocaleString()}</strong></div>`;
+                    
+                    if (unsettled.net_by_date) {
+                        let dailyHtml = '';
+                        Object.keys(unsettled.net_by_date).sort().forEach(dateStr => {
+                            let amt = unsettled.net_by_date[dateStr];
+                            if (amt > 0) {
+                                dailyHtml += `<div style="margin-bottom: 4px; font-size: 14px; font-weight: 500;">📅 ${dateStr} 應付交割：<span style="color: #ff4d4f;">$${amt.toLocaleString()}</span></div>`;
+                            } else if (amt < 0) {
+                                dailyHtml += `<div style="margin-bottom: 4px; font-size: 14px; font-weight: 500;">📅 ${dateStr} 應收交割：<span style="color: #52c41a;">$${Math.abs(amt).toLocaleString()}</span></div>`;
+                            } else {
+                                dailyHtml += `<div style="margin-bottom: 4px; font-size: 14px; font-weight: 500;">📅 ${dateStr} 交割淨額：$0</div>`;
+                            }
+                        });
+                        if (dailyHtml) {
+                            detailsHtml += dailyHtml + `<hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 8px 0;">`;
+                        }
+                    }
+
                     unsettled.details.forEach(d => {
                         let actionText = d.action === 'BUY' ? '買進' : '賣出';
                         let actionColor = d.action === 'BUY' ? '#ff4d4f' : '#52c41a'; // 台股買紅賣綠

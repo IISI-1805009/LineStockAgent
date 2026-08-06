@@ -607,7 +607,7 @@ def get_unsettled_amount(user_id: str):
     # User only needs to prepare money if a specific settlement date has a positive net amount
     total_required = sum(amt for amt in net_by_date.values() if amt > 0)
             
-    return {"total_amount": total_required, "details": details}
+    return {"total_amount": total_required, "net_by_date": net_by_date, "details": details}
 
 def get_last_update_time():
     conn = get_connection()
