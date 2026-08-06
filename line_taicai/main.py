@@ -174,7 +174,9 @@ def api_dev_resolve_user(req: DevResolveRequest):
             raise HTTPException(status_code=404, detail="找不到該信箱綁定的使用者")
         return {"user_id": user_id}
     else:
-        # 直接當作 user_id
+        # 當作 user_id 檢查是否存在
+        if not database.check_user_exists(req.input_val):
+            raise HTTPException(status_code=404, detail="找不到該 User ID")
         return {"user_id": req.input_val}
 
 def resolve_stock_code(input_val: str) -> str:

@@ -893,7 +893,13 @@
 
                 if (unsettled.details && unsettled.details.length > 0) {
                     warningBox.style.display = 'block';
-                    let detailsHtml = `<div style="margin-bottom: 6px;">未來應付交割總額：<strong style="font-size: 16px; color: #ff4d4f;">$${(unsettled.total_amount || 0).toLocaleString()}</strong></div>`;
+                    
+                    let totalAmt = unsettled.total_amount || 0;
+                    let totalColor = totalAmt > 0 ? '#ff4d4f' : (totalAmt < 0 ? '#52c41a' : 'var(--text-primary)');
+                    let totalPrefix = totalAmt < 0 ? '-$' : '$';
+                    let totalAbs = Math.abs(totalAmt).toLocaleString();
+                    
+                    let detailsHtml = `<div style="margin-bottom: 6px;">未來交割總額：<strong style="font-size: 16px; color: ${totalColor};">${totalPrefix}${totalAbs}</strong></div>`;
                     
                     if (unsettled.net_by_date) {
                         let dailyHtml = '';

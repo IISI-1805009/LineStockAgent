@@ -4,7 +4,6 @@ import urllib.parse
 import json
 from openai import OpenAI
 from tools.stock_manager import add_to_watchlist, remove_from_watchlist, buy_stock, sell_stock, get_stock_health
-from tools.migration import migrate_user
 
 ollama_client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
 
@@ -96,14 +95,6 @@ HERMES_TOOLS = [
 def process_line_message(user_message: str, user_id: str) -> str:
     message = user_message.strip()
     
-    # 處理資料轉移隱藏指令
-    if message == "我是振":
-        success, reply = migrate_user("振", user_id)
-        return reply
-    if message == "我是芊":
-        success, reply = migrate_user("芊", user_id)
-        return reply
-
     # 處理信箱綁定
     if message.startswith("/綁定信箱"):
         parts = message.split()

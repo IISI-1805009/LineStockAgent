@@ -16,6 +16,7 @@
 - **事先確認原則**：在執行任何會**修改檔案**、**更新資料庫** 或**變更系統狀態**的動作前，**必須**先向使用者說明預計的實作方式、變更範圍及影響，並取得**明確確認**後方可執行。
 - **資料庫維護原則**：除非使用者明確提及，否則**嚴禁**自作主張新增或刪除資料庫中的任何欄位（Properties）。所有的資料更新與寫入**必須**在現有的欄位架構下進行。
 - **臨時檔案封存原則**：當有建立臨時性的檔案（例如單次執行的腳本）時，在任務結束後，**必須**將該檔案移動至對應專案的 `archive_scripts/` 或其他封存目錄中，以保持工作區整潔。
+- **手動提交版本控制原則 (Manual Git Push)**：完成功能修改後，必須先交由使用者進行測試與驗證。除非使用者明確確認功能正常並指示上傳，否則**嚴禁**自動執行 `git commit` 或 `git push`。
 
 ## 3. 溝通與語言規範 (Communication & Language)
 
@@ -36,7 +37,10 @@
 
 - **優雅關閉 (Graceful Shutdown)**：任何設計為常駐背景執行的腳本（例如利用 `subprocess` 啟動 uvicorn 或 cloudflared 等子行程），**必須**實作訊號捕捉 (如 `SIGTERM`, `SIGINT`) 與 `atexit` 清理機制，確保在主程式被關閉或重啟時，所有子行程都會被乾淨地終止，嚴禁留下殭屍行程 (Zombie Process)。
 - **存活監控 (Process Monitoring)**：背景服務管理腳本必須持續監控其管理的子行程狀態（例如使用 `process.poll()`）。若偵測到關鍵子行程異常崩潰，主腳本必須主動退出，交由系統服務 (如 macOS `launchd`) 來進行乾淨的整體重啟，避免服務處於半死不活的狀態。
-- **修改必重啟原則 (Mandatory Restart on Code Change)**：【極度重要】只要修改了常駐背景服務相關的程式碼（例如 `router.py`, `scheduler.py` 或伺服器主邏輯），**必須親自執行**重新啟動服務的指令（例如 `launchctl unload ... ; launchctl load ...`）。絕對不能只在任務清單打勾就視為完成，必須確實執行指令以確保新版程式碼載入記憶體。
+- **雙伺服器架構與重啟原則 (Dual Server Architecture & Restart Rule)**：【極度重要】本專案包含兩個獨立運作的常駐背景伺服器。只要修改了相關程式碼，**必須親自執行**對應的 `launchctl` 指令重新啟動，否則新版程式碼不會生效。絕對不能以為兩者是同一個服務：
+    1. 若修改 `line_agent_service/` 下的程式碼：請執行 `launchctl unload ~/Library/LaunchAgents/com.hank.lineagent.plist && launchctl load ~/Library/LaunchAgents/com.hank.lineagent.plist`
+    2. 若修改 `line_taicai/` 下的程式碼（含前端模板）：請執行 `launchctl unload ~/Library/LaunchAgents/com.hank.linetaicai.plist && launchctl load ~/Library/LaunchAgents/com.hank.linetaicai.plist`
+    3. 若兩者都有修改，則必須兩邊都重啟。
 
 ## 7. 新功能與資料抓取驗證原則 (Data Fetching Validation)
 

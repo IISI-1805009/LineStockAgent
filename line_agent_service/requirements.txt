@@ -9,3 +9,4 @@ google-generativeai
 beautifulsoup4
 deep-translator
 cloudscraper
+jinja2

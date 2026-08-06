@@ -307,6 +307,14 @@ def register_user(user_id):
     conn.commit()
     conn.close()
 
+def check_user_exists(user_id: str) -> bool:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM users WHERE user_id = ?", (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return row is not None
+
 def get_all_users_for_notification():
     conn = get_connection()
     cursor = conn.cursor()
@@ -604,8 +612,8 @@ def get_unsettled_amount(user_id: str):
         date_str = d["settlement_date"]
         net_by_date[date_str] = net_by_date.get(date_str, 0) + d["amount"]
         
-    # User only needs to prepare money if a specific settlement date has a positive net amount
-    total_required = sum(amt for amt in net_by_date.values() if amt > 0)
+    # Calculate overall net total for all upcoming settlement dates
+    total_required = sum(net_by_date.values())
             
     return {"total_amount": total_required, "net_by_date": net_by_date, "details": details}
 

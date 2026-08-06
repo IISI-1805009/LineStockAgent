@@ -137,9 +137,6 @@ def main():
     tunnel_url = os.getenv("WEBHOOK_URL", "https://handstarlinebot.win")
     print(f"\n🚀 Using Cloudflare URL from .env: {tunnel_url}\n")
     try:
-        # Update LINE Webhook (idempotent, ensures LINE always points to our domain)
-        update_line_webhook(tunnel_url)
-        
         # Update LIFF Endpoint URL
         update_liff_endpoint(tunnel_url)
         

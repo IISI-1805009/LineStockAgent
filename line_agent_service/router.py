@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv("/Users/hank/Project/LineStockAgent/line_agent_service/.env")
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://handstarlinebot.win")
 
 # 用來記錄上次執行台菜技能的時間
 last_taicai_execution_time = 0
@@ -54,7 +55,8 @@ def run_skill_in_background(script_cmd, cwd, user_id):
             push_line_message(user_id, f"⚠️ 執行台菜技能時發生錯誤：\n{error_output[-500:]}")
             last_taicai_execution_time = 0  # 失敗時重置冷卻時間
         else:
-            push_line_message(user_id, "✅ 台菜資料更新已順利完成！請前往儀表板查看最新資料。")
+            dashboard_url = f"{WEBHOOK_URL}/dashboard?user_id={user_id}"
+            push_line_message(user_id, f"✅ 台菜資料更新已順利完成！請前往專屬儀表板查看最新資料：\n{dashboard_url}")
     except Exception as e:
         push_line_message(user_id, f"⚠️ 執行台菜技能時發生錯誤：\n{str(e)}")
         last_taicai_execution_time = 0  # 失敗時重置冷卻時間
@@ -65,6 +67,10 @@ def process_message(user_message: str, user_id: str = "") -> str:
     """Route the message to the appropriate handler."""
     global last_taicai_execution_time
     message = user_message.strip()
+    if message in ["開啟專屬資料庫", "開啟儀表板", "儀表板"]:
+        dashboard_url = f"{WEBHOOK_URL}/dashboard?user_id={user_id}"
+        return f"📊 [專屬儀表板]\n{dashboard_url}"
+        
     if message in ["台菜資料更新", "台菜更新"]:
         # 防呆機制：10 分鐘 (600 秒) 內只能執行一次
         current_time = time.time()
