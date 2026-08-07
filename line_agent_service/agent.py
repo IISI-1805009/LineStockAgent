@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 # Import our sandboxed tools
 from tools import read_file, write_file, list_dir, BASE_WORKSPACE
 
-load_dotenv("/Users/hank/Project/LineStockAgent/line_agent_service/.env")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 # Initialize the Gemini client
 api_key = os.environ.get("GEMINI_API_KEY")

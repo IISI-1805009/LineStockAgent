@@ -12,15 +12,8 @@ scheduler = BackgroundScheduler()
 def scheduled_update():
     print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Starting scheduled market data update...", flush=True)
     try:
-        # 1. Fetch missing targets
-        print("Fetching missing targets...", flush=True)
-        subprocess.run(
-            [PYTHON_CMD, "core/fetch_targets.py", "--missing"],
-            cwd=TAICAI_DIR,
-            check=True,
-            timeout=600
-        )
-        
+        # Fetch missing targets has been moved to scheduled_daily_targets_update (08:30)
+
         # 2. Run taicai_manager to fetch latest data and write to latest_data.json
         print("Running taicai_manager.py...", flush=True)
         subprocess.run(
@@ -46,6 +39,20 @@ def scheduled_notification():
         print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Scheduled notification completed successfully.", flush=True)
     except Exception as e:
         print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Scheduled notification failed: {e}", flush=True)
+
+def scheduled_daily_targets_update():
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Starting daily missing targets update...", flush=True)
+    try:
+        print("Fetching missing targets...", flush=True)
+        subprocess.run(
+            [PYTHON_CMD, "core/fetch_targets.py", "--missing"],
+            cwd=TAICAI_DIR,
+            check=True,
+            timeout=600
+        )
+        print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Daily targets update completed successfully.", flush=True)
+    except Exception as e:
+        print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Daily targets update failed: {e}", flush=True)
 
 def scheduled_weekend_update():
     print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Starting scheduled weekend ALL targets update...", flush=True)
@@ -105,6 +112,16 @@ def start_scheduler():
         hour='9-15',
         minute='0,30',
         id='line_taicai_notifier'
+    )
+    
+    # Schedule to fetch missing targets once a day at 08:30 on Mon-Fri
+    scheduler.add_job(
+        scheduled_daily_targets_update,
+        'cron',
+        day_of_week='mon-fri',
+        hour='8',
+        minute='30',
+        id='line_taicai_daily_targets_updater'
     )
     
     # Schedule to run every Saturday at 10:00 AM to fetch all targets

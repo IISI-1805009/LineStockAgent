@@ -1,11 +1,11 @@
 {
-  "TWII_price": 44611.6,
-  "TWII_ma20": 43741.8890625,
-  "TWII_ma60": 44189.5953125,
+  "TWII_price": 44160.89,
+  "TWII_ma20": 43615.317578125,
+  "TWII_ma60": 44277.6748046875,
   "TWII_trend": "空頭",
-  "TWII_rsi": 53.55,
-  "TWII_bias": 0.95,
-  "market_pe_median": 20.235,
-  "market_pb_median": 1.7850000000000001,
-  "update_date": "2026-08-05 17:07:57"
+  "TWII_rsi": 51.46,
+  "TWII_bias": -0.26,
+  "market_pe_median": 20.23,
+  "market_pb_median": 1.81,
+  "update_date": "2026-08-07 11:50:17"
 }

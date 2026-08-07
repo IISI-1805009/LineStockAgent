@@ -7,7 +7,8 @@ import json
 from agent import handle_agent_message
 from dotenv import load_dotenv
 
-load_dotenv("/Users/hank/Project/LineStockAgent/line_agent_service/.env")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://handstarlinebot.win")
 

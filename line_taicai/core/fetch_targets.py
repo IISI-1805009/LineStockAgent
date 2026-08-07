@@ -160,12 +160,13 @@ def main():
         if extracted and "平均" in extracted and extracted["平均"] > 0:
             update_consensus(code, extracted)
         else:
-            print(f"⚠️ Could not extract valid targets for {code}")
+            print(f"⚠️ Could not extract valid targets for {code}. Caching dummy data to prevent retry.")
+            update_consensus(code, {"平均": 0, "狀態": "近期無報告"})
             
         import time
-        # 加入 4 秒延遲以符合免費版 Gemini 15 RPM 的限制
-        print("Waiting 4 seconds to respect API rate limits...")
-        time.sleep(4)
+        # 加入 6 秒延遲以符合免費版 Gemini 15 RPM 的限制
+        print("Waiting 6 seconds to respect API rate limits...")
+        time.sleep(6)
 
 if __name__ == "__main__":
     main()

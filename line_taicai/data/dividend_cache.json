@@ -134,5 +134,17 @@
   "3661": {
     "consec": 8,
     "avg_yield_5y": 0.82
+  },
+  "2492": {
+    "consec": 12,
+    "avg_yield_5y": 3.1
+  },
+  "2344": {
+    "consec": 1,
+    "avg_yield_5y": 3.73
+  },
+  "6488": {
+    "consec": 12,
+    "avg_yield_5y": 3.14
   }
 }

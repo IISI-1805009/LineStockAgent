@@ -398,5 +398,53 @@
     "ocf_ni_5y_avg_over_100": true,
     "div_payout_3_of_5_over_50": true,
     "div_payout_5y_avg_over_50": true
+  },
+  "2492": {
+    "pe_5y_lowest_20": false,
+    "pb_5y_lowest_20": false,
+    "ar_days_improved": false,
+    "inv_days_improved": false,
+    "gross_margin_yoy": true,
+    "operating_margin_yoy": true,
+    "pre_tax_yoy": true,
+    "net_income_yoy": true,
+    "fcf_3_of_5_positive": true,
+    "fcf_5y_avg_positive": false,
+    "ocf_ni_3_of_5_over_100": true,
+    "ocf_ni_5y_avg_over_100": true,
+    "div_payout_3_of_5_over_50": true,
+    "div_payout_5y_avg_over_50": false
+  },
+  "2344": {
+    "pe_5y_lowest_20": false,
+    "pb_5y_lowest_20": false,
+    "ar_days_improved": false,
+    "inv_days_improved": true,
+    "gross_margin_yoy": true,
+    "operating_margin_yoy": true,
+    "pre_tax_yoy": true,
+    "net_income_yoy": true,
+    "fcf_3_of_5_positive": false,
+    "fcf_5y_avg_positive": false,
+    "ocf_ni_3_of_5_over_100": true,
+    "ocf_ni_5y_avg_over_100": true,
+    "div_payout_3_of_5_over_50": false,
+    "div_payout_5y_avg_over_50": false
+  },
+  "6488": {
+    "pe_5y_lowest_20": false,
+    "pb_5y_lowest_20": false,
+    "ar_days_improved": false,
+    "inv_days_improved": true,
+    "gross_margin_yoy": false,
+    "operating_margin_yoy": false,
+    "pre_tax_yoy": true,
+    "net_income_yoy": true,
+    "fcf_3_of_5_positive": false,
+    "fcf_5y_avg_positive": false,
+    "ocf_ni_3_of_5_over_100": true,
+    "ocf_ni_5y_avg_over_100": true,
+    "div_payout_3_of_5_over_50": false,
+    "div_payout_5y_avg_over_50": false
   }
 }

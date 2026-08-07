@@ -26,7 +26,8 @@ from database import get_user_portfolio
 templates = Jinja2Templates(directory="templates")
 
 # Load environment variables
-load_dotenv("/Users/hank/Project/LineStockAgent/line_agent_service/.env")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 channel_secret = os.getenv('LINE_CHANNEL_SECRET')
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')

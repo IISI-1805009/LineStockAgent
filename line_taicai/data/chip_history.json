@@ -1,11 +1,6 @@
 {
   "6770": [
     {
-      "date": "2026-07-13",
-      "ForeignBuy": -14794,
-      "TrustBuy": -621
-    },
-    {
       "date": "2026-07-14",
       "ForeignBuy": -11989,
       "TrustBuy": -820
@@ -99,14 +94,14 @@
       "date": "2026-08-05",
       "ForeignBuy": -15673,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": 38628,
+      "TrustBuy": 48
     }
   ],
   "2449": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": -2544,
-      "TrustBuy": 33
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -1796,
@@ -201,14 +196,14 @@
       "date": "2026-08-05",
       "ForeignBuy": -2082,
       "TrustBuy": 213
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -1073,
+      "TrustBuy": -291
     }
   ],
   "00713": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 1078,
-      "TrustBuy": 480
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -199,
@@ -303,14 +298,14 @@
       "date": "2026-08-05",
       "ForeignBuy": -82,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": 120,
+      "TrustBuy": 45
     }
   ],
   "00915": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 527,
-      "TrustBuy": 0
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -90,
@@ -405,14 +400,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 1118,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -534,
+      "TrustBuy": 0
     }
   ],
   "2308": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": -816,
-      "TrustBuy": 31
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": 261,
@@ -507,14 +502,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 117,
       "TrustBuy": -74
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": 73,
+      "TrustBuy": 482
     }
   ],
   "00878": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 1795,
-      "TrustBuy": 0
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -6219,
@@ -609,14 +604,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 3151,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -15659,
+      "TrustBuy": 0
     }
   ],
   "9943": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 11,
-      "TrustBuy": 0
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -25,
@@ -711,14 +706,14 @@
       "date": "2026-08-05",
       "ForeignBuy": -25,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -33,
+      "TrustBuy": 0
     }
   ],
   "1752": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": -22,
-      "TrustBuy": 0
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -25,
@@ -813,14 +808,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 1,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": 2,
+      "TrustBuy": 0
     }
   ],
   "6614": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 2,
-      "TrustBuy": 0
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": 0,
@@ -915,14 +910,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 3,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -1,
+      "TrustBuy": 0
     }
   ],
   "3008": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": -486,
-      "TrustBuy": 22
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": 13,
@@ -1017,14 +1012,14 @@
       "date": "2026-08-05",
       "ForeignBuy": -390,
       "TrustBuy": 421
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -177,
+      "TrustBuy": 98
     }
   ],
   "2454": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": -690,
-      "TrustBuy": -215
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -774,
@@ -1119,14 +1114,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 1846,
       "TrustBuy": -12
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -994,
+      "TrustBuy": -98
     }
   ],
   "3661": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 140,
-      "TrustBuy": 27
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -121,
@@ -1221,14 +1216,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 268,
       "TrustBuy": 7
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": 128,
+      "TrustBuy": 8
     }
   ],
   "3653": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 113,
-      "TrustBuy": -85
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": 198,
@@ -1323,14 +1318,14 @@
       "date": "2026-08-05",
       "ForeignBuy": -524,
       "TrustBuy": 402
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -225,
+      "TrustBuy": 165
     }
   ],
   "3017": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 21,
-      "TrustBuy": -28
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -548,
@@ -1425,14 +1420,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 794,
       "TrustBuy": 524
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": 2310,
+      "TrustBuy": 908
     }
   ],
   "4958": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 2044,
-      "TrustBuy": 94
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": 21044,
@@ -1527,14 +1522,14 @@
       "date": "2026-08-05",
       "ForeignBuy": -2569,
       "TrustBuy": 230
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -2414,
+      "TrustBuy": 2715
     }
   ],
   "00929": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": -2011,
-      "TrustBuy": 0
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -7572,
@@ -1629,14 +1624,14 @@
       "date": "2026-08-05",
       "ForeignBuy": -2239,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -867,
+      "TrustBuy": 0
     }
   ],
   "0056": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 674,
-      "TrustBuy": 180
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -14070,
@@ -1731,14 +1726,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 15036,
       "TrustBuy": 80
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -557,
+      "TrustBuy": 850
     }
   ],
   "2327": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": -4491,
-      "TrustBuy": 1745
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": 2813,
@@ -1833,14 +1828,14 @@
       "date": "2026-08-05",
       "ForeignBuy": -8197,
       "TrustBuy": 1007
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -4367,
+      "TrustBuy": -1648
     }
   ],
   "2330": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": -12749,
-      "TrustBuy": 43
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -2045,
@@ -1935,14 +1930,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 12251,
       "TrustBuy": -1222
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -4012,
+      "TrustBuy": -83
     }
   ],
   "2408": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 15430,
-      "TrustBuy": 3250
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -29029,
@@ -2037,14 +2032,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 7255,
       "TrustBuy": 3916
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": 9183,
+      "TrustBuy": -251
     }
   ],
   "00919": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 16275,
-      "TrustBuy": 0
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": -20460,
@@ -2139,14 +2134,14 @@
       "date": "2026-08-05",
       "ForeignBuy": 13700,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -17566,
+      "TrustBuy": 0
     }
   ],
   "00918": [
-    {
-      "date": "2026-07-13",
-      "ForeignBuy": 201,
-      "TrustBuy": 0
-    },
     {
       "date": "2026-07-14",
       "ForeignBuy": 1538,
@@ -2241,6 +2236,11 @@
       "date": "2026-08-05",
       "ForeignBuy": 518,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -359,
+      "TrustBuy": 0
     }
   ],
   "1582": [
@@ -2303,6 +2303,11 @@
       "date": "2026-08-05",
       "ForeignBuy": -9,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": 158,
+      "TrustBuy": 0
     }
   ],
   "0050": [
@@ -2335,6 +2340,11 @@
       "date": "2026-08-05",
       "ForeignBuy": 84036,
       "TrustBuy": 9902
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -8703,
+      "TrustBuy": 5800
     }
   ],
   "00646": [
@@ -2367,6 +2377,25 @@
       "date": "2026-08-05",
       "ForeignBuy": -1820,
       "TrustBuy": 0
+    },
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -91,
+      "TrustBuy": 50
+    }
+  ],
+  "2492": [
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -3683,
+      "TrustBuy": -29
+    }
+  ],
+  "2344": [
+    {
+      "date": "2026-08-07",
+      "ForeignBuy": -18758,
+      "TrustBuy": 399
     }
   ]
 }
